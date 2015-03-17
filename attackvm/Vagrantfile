@@ -74,39 +74,34 @@ Vagrant.configure(2) do |config|
   tar xvf cobaltstrike-trial.tgz
   #java -jar /home/vagrant/cobaltstrike/cobaltstrike.jar 
 
-  sudo aptitude -y install build-essential libreadline-dev libssl-dev libpq5 libpq-dev libreadline5 libsqlite3-dev libpcap-dev openjdk-7-jre git-core autoconf postgresql pgadmin3 curl zlib1g-dev libxml2-dev libxslt1-dev vncviewer libyaml-dev curl zlib1g-dev git nmap 
+  # Add the ruby repos
+  sudo apt-get install software-properties-common
+  sudo apt-add-repository ppa:brightbox/ruby-ng
+  sudo apt-get update
 
-  cd /home/vagrant
-  git clone git://github.com/sstephenson/rbenv.git .rbenv
-  echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> /home/vagrant/.bashrc
-  echo 'eval "$(rbenv init -)"' >> /home/vagrant/.bashrc
-  exec $SHELL
+  sudo aptitude -y install build-essential libreadline-dev libssl-dev libpq5 libpq-dev libreadline5 libsqlite3-dev libpcap-dev openjdk-7-jre git-core autoconf postgresql postgresql-client-common postgresql-client pgadmin3 curl zlib1g-dev libxml2-dev libxslt1-dev vncviewer libyaml-dev curl zlib1g-dev git nmap ruby2.1 ruby-switch ruby2.1-dev make sqlite3 libcurl4-openssl-dev python-software-properties libffi-dev
 
-  git clone git://github.com/sstephenson/ruby-build.git /home/vagrant/.rbenv/plugins/ruby-build
-  echo 'export PATH="$HOME/.rbenv/plugins/ruby-build/bin:$PATH"' >> /home/vagrant/.bashrc
-  exec $SHELL
+  # Metasploit uses ruby 2.1, so lets default to that
+  sudo ruby-switch --set ruby2.1
 
-  rbenv install 2.1.5
-  rbenv global 2.1.5
-  ruby -v
-
+  sudo gem install ffi -v '1.9.3'
   sudo gem install bundler
 
-  sudo -s
-  su postgres
+  # Postgres for metasploit (with no password)
+  sudo -u postgres createuser msf -S -R -D
+  sudo -u postgres createdb -O msf msf
 
-  createuser msf -P -S -R -D
-  createdb -O msf msf
-  exit
+  # Metasploit install
+  git clone https://github.com/rapid7/metasploit-framework.git /opt/metasploit-framework
+  bundle install --gemfile=/opt/metasploit-framework/Gemfile
 
-  cd /opt
-  git clone https://github.com/rapid7/metasploit-framework.git
-  cd metasploit-framework
+  #msfconsole
+  echo 'export PATH="/opt/metasploit-framework:$PATH"' >> /home/vagrant/.bashrc
+  
+  # Some gems need readable permissions ;)
+  chmod -R o+r /var/lib/gems
 
-  cd metasploit-framework 
-  bundle install
-
-  msfconsole
+  sudo shutdown -r now
 
   SHELL
 
