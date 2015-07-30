@@ -1,0 +1,1 @@
+{"virtualbox":{"/vagrant_tools":{"guestpath":"/vagrant_tools","hostpath":"/home/brian/Dropbox/dev/vagrant/tools","disabled":false},"/dev":{"guestpath":"/dev","hostpath":"/home/brian/Dropbox/dev","disabled":false},"/vagrant":{"guestpath":"/vagrant","hostpath":"/home/brian/Dropbox/dev/vagrant/windows-vs2008","disabled":false}}}
